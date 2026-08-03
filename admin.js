@@ -3,8 +3,8 @@
 
   const config = window.WEDDING_CONFIG || {};
   const CACHE_KEY = "weddingAdminDataV2";
-  const GROOM_SIDE = config.groomSideLabel || "新郎側";
-  const BRIDE_SIDE = config.brideSideLabel || "新婦側";
+  const GROOM_SIDE = config.groomSideLabel || "新郎";
+  const BRIDE_SIDE = config.brideSideLabel || "新婦";
 
   const state = {
     payload: null,
@@ -25,7 +25,8 @@
     voteChart: document.getElementById("voteChart"),
     correctColorButtons: document.getElementById("correctColorButtons"),
     eligibleBadge: document.getElementById("eligibleBadge"),
-    drawButton: document.getElementById("drawButton"),
+    drawGroomButton: document.getElementById("drawGroomButton"),
+    drawBrideButton: document.getElementById("drawBrideButton"),
     drawStage: document.getElementById("drawStage"),
     responseTableBody: document.getElementById("responseTableBody"),
   };
@@ -197,10 +198,12 @@
 
   function updateDrawButton() {
     const groomCount = eligibleResponses(GROOM_SIDE).length;
+    console.log("Groom eligible count:", groomCount);
     const brideCount = eligibleResponses(BRIDE_SIDE).length;
     elements.eligibleBadge.textContent = `${GROOM_SIDE} ${groomCount}名 / ${BRIDE_SIDE} ${brideCount}名`;
     elements.eligibleBadge.className = `status-badge ${groomCount && brideCount ? "success" : "warning"}`;
-    elements.drawButton.disabled = !state.correctColor || !groomCount || !brideCount;
+    elements.drawGroomButton.disabled = !state.correctColor || !groomCount;
+    elements.drawBrideButton.disabled = !state.correctColor || !brideCount;
   }
 
   function randomIndex(max) {
@@ -216,22 +219,21 @@
     return responses[randomIndex(responses.length)];
   }
 
-  async function draw() {
-    const groomCandidates = eligibleResponses(GROOM_SIDE);
-    const brideCandidates = eligibleResponses(BRIDE_SIDE);
-    if (!groomCandidates.length || !brideCandidates.length) {
-      showStatus("新郎側・新婦側の両方に正解者が必要です。", "error");
+  async function draw(side) {
+    const candidates = eligibleResponses(side);
+    if (!candidates.length) {
+      showStatus(`${side}の正解者がいません。`, "error");
       return;
     }
 
-    elements.drawButton.disabled = true;
+    elements.drawGroomButton.disabled = true;
+    elements.drawBrideButton.disabled = true;
     elements.drawStage.innerHTML = '<div class="rolling-name">抽選中…</div>';
     const rollingName = elements.drawStage.querySelector(".rolling-name");
 
     await new Promise((resolve) => {
       let count = 0;
       const timer = setInterval(() => {
-        const candidates = count % 2 ? groomCandidates : brideCandidates;
         rollingName.textContent = chooseOne(candidates).name;
         count += 1;
         if (count >= 24) {
@@ -241,12 +243,10 @@
       }, 65);
     });
 
-    const groomWinner = chooseOne(groomCandidates);
-    const brideWinner = chooseOne(brideCandidates);
+    const winner = chooseOne(candidates);
     elements.drawStage.innerHTML = `
-      <div class="winner-title">WINNERS</div>
-      <div class="winner-name">${GROOM_SIDE}：${groomWinner.name} さん</div>
-      <div class="winner-name">${BRIDE_SIDE}：${brideWinner.name} さん</div>
+      <div class="winner-title">当選者</div>
+      <div class="winner-name">${side}：${winner.name} さん</div>
     `;
     updateDrawButton();
   }
@@ -304,6 +304,7 @@
     showStatus("Googleフォームの最新回答を取得しています。");
     try {
       const payload = await fetchJsonp(url, key);
+      console.log("Apps Scriptから受信した回答データ:", payload);
       applyPayload(payload, "最新データ");
     } catch (error) {
       showStatus(error.message || "回答取得に失敗しました。", "error");
@@ -317,7 +318,8 @@
   elements.adminKey.onkeydown = (event) => {
     if (event.key === "Enter") fetchLatest();
   };
-  elements.drawButton.onclick = draw;
+  elements.drawGroomButton.onclick = () => draw(GROOM_SIDE);
+  elements.drawBrideButton.onclick = () => draw(BRIDE_SIDE);
 
   try {
     const cached = localStorage.getItem(CACHE_KEY);

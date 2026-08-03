@@ -7,7 +7,7 @@ window.WEDDING_CONFIG = {
   driveUrl: "https://photos.app.goo.gl/VEV26cUv73AD2kj86",
   youtubeUrl: "PASTE_YOUTUBE_URL_HERE",
   youtubeVideoId: "dQw4w9WgXcQ",
-  gasWebAppUrl: "https://script.google.com/macros/s/AKfycbz6geuAR_asOG4v8fyZJVEMwc6YEhFcgcN4NyQq5-IaFSOngZGBIYCWjWgS3ijm1Zh6/exec",
+  gasWebAppUrl: "https://script.google.com/macros/s/AKfycbzm7Bdcp-SFcprEwhUFQEdXxdbZ0fRiuNgB-Wg7TB-LhxpOkPjvxicJdI4ekYEWXUBn/exec",
   mapUrl: "https://www.google.com/maps/search/?api=1&query=%E3%83%A8%E3%82%B3%E3%83%8F%E3%83%9E%E3%82%B0%E3%83%A9%E3%83%B3%E3%83%89%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%82%B3%E3%83%B3%E3%83%81%E3%83%8D%E3%83%B3%E3%82%BF%E3%83%AB%E3%83%9B%E3%83%86%E3%83%AB",
   colors: [
     { name: "ピンク", value: "#ff4fa3", text: "#ffffff" },

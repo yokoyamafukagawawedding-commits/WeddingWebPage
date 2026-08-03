@@ -52,12 +52,13 @@
 
       <section class="admin-panel">
         <div class="panel-heading">
-          <div><h2>正解色と抽選</h2><p>正解色を選ぶと、新郎側・新婦側からそれぞれ1名ずつ抽選します。</p></div>
+          <div><h2>正解色と抽選</h2><p>正解色を選び、新郎側・新婦側それぞれのボタンから1名ずつ抽選します。</p></div>
           <span id="eligibleBadge" class="status-badge">新郎側 0名 / 新婦側 0名</span>
         </div>
         <div id="correctColorButtons" class="correct-colors"></div>
         <div class="draw-controls">
-          <button id="drawButton" class="button draw-button" type="button" disabled>新郎側・新婦側から各1名を抽選</button>
+          <button id="drawGroomButton" class="button draw-button" type="button" disabled>新郎側から1名を抽選</button>
+          <button id="drawBrideButton" class="button draw-button" type="button" disabled>新婦側から1名を抽選</button>
         </div>
         <div id="drawStage" class="draw-stage" aria-live="polite"><p>正解色を選択してください</p></div>
       </section>
