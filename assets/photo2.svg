@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<rect width="1200" height="900" fill="#d9e3df"/>
+<circle cx="460" cy="340" r="160" fill="#ffffff" opacity=".45"/>
+<circle cx="790" cy="590" r="220" fill="#ffffff" opacity=".28"/>
+<text x="600" y="455" text-anchor="middle" font-family="serif" font-size="58" fill="#5b514d">PHOTO 2</text>
+<text x="600" y="520" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#756a65">ここを実際の写真に差し替え</text>
+</svg>

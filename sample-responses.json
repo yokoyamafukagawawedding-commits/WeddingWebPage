@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "formTitle": "ドレス色当てクイズ",
+  "fetchedAt": "2026-10-04T02:30:00.000Z",
+  "rawCount": 8,
+  "validSubmissionCount": 8,
+  "uniqueCount": 6,
+  "duplicateCount": 2,
+  "invalidCount": 0,
+  "colors": ["ピンク", "ブルー", "イエロー", "パープル"],
+  "responses": [
+    {"side":"新郎側","name":"新郎側ゲスト1","answer":"ピンク","timestamp":"2026-10-04T01:01:00.000Z"},
+    {"side":"新郎側","name":"新郎側ゲスト2","answer":"ブルー","timestamp":"2026-10-04T01:03:00.000Z"},
+    {"side":"新郎側","name":"新郎側ゲスト3","answer":"ピンク","timestamp":"2026-10-04T01:08:00.000Z"},
+    {"side":"新婦側","name":"新婦側ゲスト1","answer":"パープル","timestamp":"2026-10-04T01:12:00.000Z"},
+    {"side":"新婦側","name":"新婦側ゲスト2","answer":"ピンク","timestamp":"2026-10-04T01:18:00.000Z"},
+    {"side":"新婦側","name":"新婦側ゲスト3","answer":"イエロー","timestamp":"2026-10-04T01:23:00.000Z"}
+  ]
+}

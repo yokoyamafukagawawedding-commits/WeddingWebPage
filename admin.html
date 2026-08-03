@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#2e2927">
+  <title>ドレス色当てクイズ 管理者画面</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+  <header class="admin-header">
+    <div>
+      <p class="eyebrow">WEDDING QUIZ ADMIN</p>
+      <h1>ドレス色当てクイズ</h1>
+      <p>この画面を開いただけではGoogleへ通信しません。</p>
+    </div>
+    <a href="index.html">ゲスト画面へ</a>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-panel">
+      <div class="panel-heading">
+        <div>
+          <h2>回答データ</h2>
+          <p>パスコードを入力してボタンを押したときだけ、Apps Scriptから最新回答を取得します。</p>
+        </div>
+        <span id="dataBadge" class="status-badge">未取得</span>
+      </div>
+      <div class="fetch-row">
+        <label>管理者パスコード
+          <input id="adminKey" type="password" autocomplete="current-password" placeholder="Apps Scriptに設定したキー">
+        </label>
+        <button id="fetchButton" class="button" type="button">最新回答を取得</button>
+      </div>
+      <p id="statusMessage" class="status-message" aria-live="polite"></p>
+      <div class="backup-actions">
+        <button id="downloadJsonButton" class="small-button" type="button" disabled>JSON保存</button>
+        <button id="downloadCsvButton" class="small-button" type="button" disabled>CSV保存</button>
+        <label class="small-button file-button">JSON読込<input id="importJsonInput" type="file" accept=".json,application/json"></label>
+        <button id="clearLocalButton" class="small-button danger-text" type="button">端末保存を削除</button>
+      </div>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="summary-grid">
+        <article class="summary-card"><span>フォーム回答</span><strong id="rawCount">0</strong></article>
+        <article class="summary-card"><span>有効回答</span><strong id="uniqueCount">0</strong></article>
+        <article class="summary-card"><span>重複除外</span><strong id="duplicateCount">0</strong></article>
+        <article class="summary-card"><span>最終取得</span><strong id="fetchedAt">—</strong></article>
+      </div>
+
+      <section class="admin-panel">
+        <div class="panel-heading"><div><h2>投票結果</h2><p>同じ「招待側＋名前」の複数回答は、最も新しい回答だけを集計しています。</p></div></div>
+        <div id="voteChart" class="vote-chart"></div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-heading">
+          <div><h2>正解色と抽選</h2><p>正解色を選ぶと、その色に投票した方だけが抽選対象になります。</p></div>
+          <span id="eligibleBadge" class="status-badge">対象 0名</span>
+        </div>
+        <div id="correctColorButtons" class="correct-colors"></div>
+        <div class="draw-controls">
+          <label>抽選人数
+            <select id="winnerCount">
+              <option value="1">1名</option><option value="2">2名</option><option value="3">3名</option><option value="4">4名</option><option value="5">5名</option>
+            </select>
+          </label>
+          <button id="drawButton" class="button draw-button" type="button" disabled>抽選する</button>
+          <button id="resetWinnersButton" class="small-button" type="button">当選履歴をリセット</button>
+        </div>
+        <div id="drawStage" class="draw-stage" aria-live="polite"><p>正解色を選択してください</p></div>
+        <div id="winnerHistoryWrap" hidden><h3>当選履歴</h3><ol id="winnerHistory" class="winner-history"></ol></div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-heading"><div><h2>回答者一覧</h2><p>チェックを外した方は集計には残りますが、抽選対象から除外されます。</p></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>抽選対象</th><th>招待側</th><th>名前</th><th>回答</th><th>最終投票時刻</th></tr></thead>
+            <tbody id="responseTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
