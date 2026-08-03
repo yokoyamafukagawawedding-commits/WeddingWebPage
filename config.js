@@ -3,8 +3,8 @@
   管理者パスコードはここには書かず、admin.htmlで毎回入力します。
 */
 window.WEDDING_CONFIG = {
-  formUrl: "PASTE_GOOGLE_FORM_RESPONDER_URL_HERE",
-  driveUrl: "PASTE_GOOGLE_DRIVE_FOLDER_URL_HERE",
+  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdr7R_uvl2k31ujao91vfwG2qQs5Uju4xy7luqtIuaHA1H0bg/viewform?usp=header",
+  driveUrl: "https://photos.app.goo.gl/VEV26cUv73AD2kj86",
   youtubeUrl: "PASTE_YOUTUBE_URL_HERE",
   youtubeVideoId: "dQw4w9WgXcQ",
   gasWebAppUrl: "PASTE_APPS_SCRIPT_WEB_APP_EXEC_URL_HERE",
