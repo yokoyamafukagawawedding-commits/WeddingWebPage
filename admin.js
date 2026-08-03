@@ -1,16 +1,331 @@
-(()=>{"use strict";const c=window.WEDDING_CONFIG||{},SD="weddingAdminDataV2",SE="weddingAdminExcludedV2",SW="weddingAdminWinnersV2",s={payload:null,responses:[],excluded:new Set,correctColor:"",winners:[]},e={adminKey:document.getElementById("adminKey"),fetchButton:document.getElementById("fetchButton"),statusMessage:document.getElementById("statusMessage"),dataBadge:document.getElementById("dataBadge"),dashboard:document.getElementById("dashboard"),rawCount:document.getElementById("rawCount"),uniqueCount:document.getElementById("uniqueCount"),duplicateCount:document.getElementById("duplicateCount"),fetchedAt:document.getElementById("fetchedAt"),voteChart:document.getElementById("voteChart"),correctColorButtons:document.getElementById("correctColorButtons"),eligibleBadge:document.getElementById("eligibleBadge"),winnerCount:document.getElementById("winnerCount"),drawButton:document.getElementById("drawButton"),drawStage:document.getElementById("drawStage"),responseTableBody:document.getElementById("responseTableBody"),downloadJsonButton:document.getElementById("downloadJsonButton"),downloadCsvButton:document.getElementById("downloadCsvButton"),importJsonInput:document.getElementById("importJsonInput"),clearLocalButton:document.getElementById("clearLocalButton"),resetWinnersButton:document.getElementById("resetWinnersButton"),winnerHistoryWrap:document.getElementById("winnerHistoryWrap"),winnerHistory:document.getElementById("winnerHistory")};
-function status(m,t=""){e.statusMessage.textContent=m;e.statusMessage.className=`status-message ${t}`.trim()}function key(r){return`${r.side}\0${r.name}`}function colors(){const a=Array.isArray(c.colors)?c.colors.slice():[],n=s.payload&&Array.isArray(s.payload.colors)?s.payload.colors:[];n.forEach(x=>{a.some(y=>y.name===x)||a.push({name:x,value:"#9a8f89",text:"#fff"})});return a}function color(n){return colors().find(x=>x.name===n)||{name:n,value:"#9a8f89",text:"#fff"}}function dt(v){const d=new Date(v);return Number.isNaN(d.getTime())?"—":new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(d)}function esc(v){return String(v).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[x])}
-function normalize(i){const p=Array.isArray(i)?{success:true,responses:i,rawCount:i.length,duplicateCount:0}:i;if(!p||p.success===false||!Array.isArray(p.responses))throw new Error(p&&p.error?p.error:"回答データの形式が正しくありません。");const r=p.responses.map(x=>({side:String(x.side||"").trim(),name:String(x.name||"").trim(),answer:String(x.answer||x.color||"").trim(),timestamp:x.timestamp||x.submittedAt||""})).filter(x=>x.side&&x.name&&x.answer);return{...p,success:true,responses:r,rawCount:Number.isFinite(Number(p.rawCount))?Number(p.rawCount):r.length,uniqueCount:r.length,duplicateCount:Number.isFinite(Number(p.duplicateCount))?Number(p.duplicateCount):0,fetchedAt:p.fetchedAt||new Date().toISOString()}}
-function apply(i,label,save=true){const p=normalize(i);s.payload=p;s.responses=p.responses;s.correctColor="";s.winners=[];if(save){localStorage.setItem(SD,JSON.stringify(p));localStorage.removeItem(SW)}render();e.dataBadge.textContent=label;e.dataBadge.className="status-badge success";status(`${p.responses.length}名分の最新回答を読み込みました。`,"success")}
-function render(){if(!s.payload)return;e.dashboard.hidden=false;e.downloadJsonButton.disabled=false;e.downloadCsvButton.disabled=false;e.rawCount.textContent=s.payload.rawCount;e.uniqueCount.textContent=s.responses.length;e.duplicateCount.textContent=s.payload.duplicateCount||0;e.fetchedAt.textContent=dt(s.payload.fetchedAt);chart();colorButtons();table();eligible();history()}
-function chart(){const m=new Map;colors().forEach(x=>m.set(x.name,0));s.responses.forEach(x=>m.set(x.answer,(m.get(x.answer)||0)+1));const mx=Math.max(1,...m.values());e.voteChart.innerHTML="";m.forEach((v,n)=>{const co=color(n),r=document.createElement("div");r.className="vote-row";r.innerHTML='<span class="vote-label"></span><div class="vote-track"><div class="vote-bar"></div></div><span class="vote-number"></span>';r.querySelector(".vote-label").textContent=n;r.querySelector(".vote-bar").style.width=`${v/mx*100}%`;r.querySelector(".vote-bar").style.background=co.value;r.querySelector(".vote-number").textContent=`${v}票`;e.voteChart.appendChild(r)})}
-function colorButtons(){e.correctColorButtons.innerHTML="";colors().forEach(co=>{const b=document.createElement("button");b.type="button";b.className="correct-color-button"+(s.correctColor===co.name?" selected":"");b.textContent=co.name;b.style.background=co.value;b.style.color=co.text||"#fff";b.onclick=()=>{s.correctColor=co.name;s.winners=[];localStorage.removeItem(SW);colorButtons();eligible();history();e.drawStage.innerHTML=`<p>${esc(co.name)}の正解者から抽選します</p>`};e.correctColorButtons.appendChild(b)})}
-function table(){e.responseTableBody.innerHTML="";s.responses.slice().sort((a,b)=>a.side.localeCompare(b.side,"ja")||a.name.localeCompare(b.name,"ja")).forEach(r=>{const k=key(r),tr=document.createElement("tr");tr.innerHTML='<td><input class="target-check" type="checkbox" aria-label="抽選対象"></td><td></td><td></td><td></td><td></td>';const td=tr.querySelectorAll("td"),cb=tr.querySelector("input");cb.checked=!s.excluded.has(k);td[1].textContent=r.side;td[2].textContent=r.name;td[3].textContent=r.answer;td[4].textContent=dt(r.timestamp);cb.onchange=()=>{cb.checked?s.excluded.delete(k):s.excluded.add(k);localStorage.setItem(SE,JSON.stringify([...s.excluded]));eligible()};e.responseTableBody.appendChild(tr)})}
-function pool(exclude=true){const w=new Set(s.winners.map(key));return s.responses.filter(r=>s.correctColor&&r.answer===s.correctColor&&!s.excluded.has(key(r))&&(!exclude||!w.has(key(r))))}function eligible(){const all=pool(false),rem=pool(true);e.eligibleBadge.textContent=`対象 ${all.length}名`;e.eligibleBadge.className=`status-badge ${all.length?"success":"warning"}`;e.drawButton.disabled=!s.correctColor||!rem.length}function rand(max){if(!Number.isInteger(max)||max<=0)throw new Error("抽選対象がありません。");if(window.crypto&&window.crypto.getRandomValues){const range=4294967296,limit=range-range%max,a=new Uint32Array(1);do{window.crypto.getRandomValues(a)}while(a[0]>=limit);return a[0]%max}return Math.floor(Math.random()*max)}function choose(p,n){const a=p.slice(),o=[];for(let i=0;i<Math.min(n,a.length);i++)o.push(a.splice(rand(a.length),1)[0]);return o}
-async function draw(){const p=pool(true);if(!p.length)return status("抽選できる対象者がいません。","error");e.drawButton.disabled=true;e.drawStage.innerHTML='<div class="rolling-name">抽選中…</div>';const r=e.drawStage.querySelector(".rolling-name");let t=0;await new Promise(ok=>{const id=setInterval(()=>{r.textContent=p[rand(p.length)].name;if(++t>=24){clearInterval(id);ok()}},65)});const win=choose(p,Math.max(1,Number(e.winnerCount.value)||1));s.winners.push(...win);localStorage.setItem(SW,JSON.stringify(s.winners));e.drawStage.innerHTML="";const a=document.createElement("div"),b=document.createElement("div");a.className="winner-title";a.textContent=win.length>1?"WINNERS":"WINNER";b.className="winner-name";b.textContent=win.map(x=>`${x.name} さん`).join(" ／ ");e.drawStage.append(a,b);history();eligible()}
-function history(){e.winnerHistory.innerHTML="";if(!s.winners.length){e.winnerHistoryWrap.hidden=true;return}e.winnerHistoryWrap.hidden=false;s.winners.forEach(r=>{const li=document.createElement("li");li.textContent=`${r.name} さん（${r.side}・${r.answer}）`;e.winnerHistory.appendChild(li)})}
-function jsonp(url,k){return new Promise((ok,ng)=>{const cb=`weddingAdminCallback_${Date.now()}_${Math.floor(Math.random()*1e5)}`,sc=document.createElement("script");let done=false;const clean=()=>{sc.remove();delete window[cb]},timer=setTimeout(()=>{if(done)return;done=true;clean();ng(new Error("回答取得がタイムアウトしました。通信環境とApps Script URLを確認してください。"))},2e4);window[cb]=p=>{if(done)return;done=true;clearTimeout(timer);clean();ok(p)};sc.onerror=()=>{if(done)return;done=true;clearTimeout(timer);clean();ng(new Error("Apps Scriptへ接続できませんでした。デプロイ設定を確認してください。"))};sc.src=`${url}${url.includes("?")?"&":"?"}action=responses&key=${encodeURIComponent(k)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.head.appendChild(sc)})}
-async function fetchLatest(){const u=String(c.gasWebAppUrl||""),k=e.adminKey.value.trim();if(!u||u.startsWith("PASTE_"))return status("config.jsにApps ScriptのWebアプリURLを設定してください。","error");if(!k)return status("管理者パスコードを入力してください。","error");e.fetchButton.disabled=true;e.fetchButton.textContent="取得中…";status("Googleフォームの最新回答を取得しています。");try{const p=await jsonp(u,k);if(!p||p.success!==true)throw new Error(p&&p.error?p.error:"回答取得に失敗しました。");apply(p,"最新データ",true)}catch(x){status(x.message||"回答取得に失敗しました。","error")}finally{e.fetchButton.disabled=false;e.fetchButton.textContent="最新回答を取得"}}
-function download(content,type,name){const b=new Blob([content],{type}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1e3)}function csv(v){return`"${String(v??"").replaceAll('"','""')}"`}function reset(){s.winners=[];localStorage.removeItem(SW);e.drawStage.innerHTML=s.correctColor?`<p>${esc(s.correctColor)}の正解者から抽選します</p>`:"<p>正解色を選択してください</p>";history();eligible()}
-e.fetchButton.onclick=fetchLatest;e.adminKey.onkeydown=x=>{x.key==="Enter"&&fetchLatest()};e.drawButton.onclick=draw;e.downloadJsonButton.onclick=()=>s.payload&&download(JSON.stringify(s.payload,null,2),"application/json;charset=utf-8","wedding-quiz-backup.json");e.downloadCsvButton.onclick=()=>{if(!s.responses.length)return;const rows=[["招待側","名前","回答","最終投票時刻"],...s.responses.map(r=>[r.side,r.name,r.answer,r.timestamp])];download("\ufeff"+rows.map(r=>r.map(csv).join(",")).join("\r\n"),"text/csv;charset=utf-8","wedding-quiz-latest-responses.csv")};e.importJsonInput.onchange=async()=>{const f=e.importJsonInput.files[0];if(!f)return;try{apply(JSON.parse(await f.text()),"読込データ",true)}catch(x){status(`JSONを読み込めませんでした: ${x.message}`,"error")}finally{e.importJsonInput.value=""}};e.clearLocalButton.onclick=()=>{if(confirm("この端末に保存した回答データ・除外設定・当選履歴を削除しますか？")){localStorage.removeItem(SD);localStorage.removeItem(SE);localStorage.removeItem(SW);location.reload()}};e.resetWinnersButton.onclick=reset;
-try{const ex=JSON.parse(localStorage.getItem(SE)||"[]");Array.isArray(ex)&&(s.excluded=new Set(ex));const d=localStorage.getItem(SD);if(d){apply(JSON.parse(d),"端末保存",false);const w=JSON.parse(localStorage.getItem(SW)||"[]");Array.isArray(w)&&(s.winners=w,history(),eligible());status("前回取得したデータを端末から読み込みました。必要に応じて最新回答を取得してください。")}}catch(x){localStorage.removeItem(SD);localStorage.removeItem(SE);localStorage.removeItem(SW);status("端末保存データが破損していたため削除しました。","error")}})();
+(() => {
+  "use strict";
+
+  const config = window.WEDDING_CONFIG || {};
+  const CACHE_KEY = "weddingAdminDataV2";
+  const GROOM_SIDE = config.groomSideLabel || "新郎側";
+  const BRIDE_SIDE = config.brideSideLabel || "新婦側";
+
+  const state = {
+    payload: null,
+    responses: [],
+    correctColor: "",
+  };
+
+  const elements = {
+    adminKey: document.getElementById("adminKey"),
+    fetchButton: document.getElementById("fetchButton"),
+    statusMessage: document.getElementById("statusMessage"),
+    dataBadge: document.getElementById("dataBadge"),
+    dashboard: document.getElementById("dashboard"),
+    rawCount: document.getElementById("rawCount"),
+    uniqueCount: document.getElementById("uniqueCount"),
+    duplicateCount: document.getElementById("duplicateCount"),
+    fetchedAt: document.getElementById("fetchedAt"),
+    voteChart: document.getElementById("voteChart"),
+    correctColorButtons: document.getElementById("correctColorButtons"),
+    eligibleBadge: document.getElementById("eligibleBadge"),
+    drawButton: document.getElementById("drawButton"),
+    drawStage: document.getElementById("drawStage"),
+    responseTableBody: document.getElementById("responseTableBody"),
+  };
+
+  function showStatus(message, type = "") {
+    elements.statusMessage.textContent = message;
+    elements.statusMessage.className = `status-message ${type}`.trim();
+  }
+
+  function getColors() {
+    const colors = Array.isArray(config.colors) ? config.colors.slice() : [];
+    const responseColors = state.payload?.colors || [];
+    responseColors.forEach((name) => {
+      if (!colors.some((color) => color.name === name)) {
+        colors.push({ name, value: "#9a8f89", text: "#fff" });
+      }
+    });
+    return colors;
+  }
+
+  function getColor(name) {
+    return getColors().find((color) => color.name === name) || {
+      name,
+      value: "#9a8f89",
+      text: "#fff",
+    };
+  }
+
+  function formatDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return new Intl.DateTimeFormat("ja-JP", {
+      timeZone: "Asia/Tokyo",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(date);
+  }
+
+  function normalizePayload(payload) {
+    if (!payload || payload.success === false || !Array.isArray(payload.responses)) {
+      throw new Error(payload?.error || "回答データの形式が正しくありません。");
+    }
+
+    const responses = payload.responses
+      .map((response) => ({
+        side: String(response.side || "").trim(),
+        name: String(response.name || "").trim(),
+        answer: String(response.answer || response.color || "").trim(),
+        timestamp: response.timestamp || response.submittedAt || "",
+      }))
+      .filter((response) => response.side && response.name && response.answer);
+
+    return {
+      ...payload,
+      success: true,
+      responses,
+      rawCount: Number(payload.rawCount) || responses.length,
+      uniqueCount: responses.length,
+      duplicateCount: Number(payload.duplicateCount) || 0,
+      fetchedAt: payload.fetchedAt || new Date().toISOString(),
+    };
+  }
+
+  function applyPayload(payload, label, saveToCache = true) {
+    const data = normalizePayload(payload);
+    state.payload = data;
+    state.responses = data.responses;
+    state.correctColor = "";
+
+    if (saveToCache) localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+
+    render();
+    elements.dataBadge.textContent = label;
+    elements.dataBadge.className = "status-badge success";
+    showStatus(`${data.responses.length}名分の最新回答を読み込みました。`, "success");
+  }
+
+  function render() {
+    if (!state.payload) return;
+
+    elements.dashboard.hidden = false;
+    elements.rawCount.textContent = state.payload.rawCount;
+    elements.uniqueCount.textContent = state.responses.length;
+    elements.duplicateCount.textContent = state.payload.duplicateCount;
+    elements.fetchedAt.textContent = formatDate(state.payload.fetchedAt);
+
+    renderChart();
+    renderColorButtons();
+    renderResponseTable();
+    updateDrawButton();
+  }
+
+  function renderChart() {
+    const counts = new Map();
+    getColors().forEach((color) => counts.set(color.name, 0));
+    state.responses.forEach((response) => {
+      counts.set(response.answer, (counts.get(response.answer) || 0) + 1);
+    });
+
+    const maxCount = Math.max(1, ...counts.values());
+    elements.voteChart.innerHTML = "";
+    counts.forEach((count, name) => {
+      const color = getColor(name);
+      const row = document.createElement("div");
+      row.className = "vote-row";
+      row.innerHTML =
+        '<span class="vote-label"></span><div class="vote-track"><div class="vote-bar"></div></div><span class="vote-number"></span>';
+      row.querySelector(".vote-label").textContent = name;
+      row.querySelector(".vote-bar").style.width = `${(count / maxCount) * 100}%`;
+      row.querySelector(".vote-bar").style.background = color.value;
+      row.querySelector(".vote-number").textContent = `${count}票`;
+      elements.voteChart.appendChild(row);
+    });
+  }
+
+  function renderColorButtons() {
+    elements.correctColorButtons.innerHTML = "";
+    getColors().forEach((color) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className =
+        "correct-color-button" +
+        (state.correctColor === color.name ? " selected" : "");
+      button.textContent = color.name;
+      button.style.background = color.value;
+      button.style.color = color.text || "#fff";
+      button.onclick = () => {
+        state.correctColor = color.name;
+        elements.drawStage.innerHTML = `<p>${color.name}の正解者から抽選します</p>`;
+        renderColorButtons();
+        updateDrawButton();
+      };
+      elements.correctColorButtons.appendChild(button);
+    });
+  }
+
+  function renderResponseTable() {
+    elements.responseTableBody.innerHTML = "";
+    state.responses
+      .slice()
+      .sort(
+        (a, b) =>
+          a.side.localeCompare(b.side, "ja") || a.name.localeCompare(b.name, "ja"),
+      )
+      .forEach((response) => {
+        const row = document.createElement("tr");
+        [
+          response.side,
+          response.name,
+          response.answer,
+          formatDate(response.timestamp),
+        ].forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        elements.responseTableBody.appendChild(row);
+      });
+  }
+
+  function eligibleResponses(side) {
+    return state.responses.filter(
+      (response) => response.side === side && response.answer === state.correctColor,
+    );
+  }
+
+  function updateDrawButton() {
+    const groomCount = eligibleResponses(GROOM_SIDE).length;
+    const brideCount = eligibleResponses(BRIDE_SIDE).length;
+    elements.eligibleBadge.textContent = `${GROOM_SIDE} ${groomCount}名 / ${BRIDE_SIDE} ${brideCount}名`;
+    elements.eligibleBadge.className = `status-badge ${groomCount && brideCount ? "success" : "warning"}`;
+    elements.drawButton.disabled = !state.correctColor || !groomCount || !brideCount;
+  }
+
+  function randomIndex(max) {
+    if (window.crypto?.getRandomValues) {
+      const values = new Uint32Array(1);
+      window.crypto.getRandomValues(values);
+      return values[0] % max;
+    }
+    return Math.floor(Math.random() * max);
+  }
+
+  function chooseOne(responses) {
+    return responses[randomIndex(responses.length)];
+  }
+
+  async function draw() {
+    const groomCandidates = eligibleResponses(GROOM_SIDE);
+    const brideCandidates = eligibleResponses(BRIDE_SIDE);
+    if (!groomCandidates.length || !brideCandidates.length) {
+      showStatus("新郎側・新婦側の両方に正解者が必要です。", "error");
+      return;
+    }
+
+    elements.drawButton.disabled = true;
+    elements.drawStage.innerHTML = '<div class="rolling-name">抽選中…</div>';
+    const rollingName = elements.drawStage.querySelector(".rolling-name");
+
+    await new Promise((resolve) => {
+      let count = 0;
+      const timer = setInterval(() => {
+        const candidates = count % 2 ? groomCandidates : brideCandidates;
+        rollingName.textContent = chooseOne(candidates).name;
+        count += 1;
+        if (count >= 24) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 65);
+    });
+
+    const groomWinner = chooseOne(groomCandidates);
+    const brideWinner = chooseOne(brideCandidates);
+    elements.drawStage.innerHTML = `
+      <div class="winner-title">WINNERS</div>
+      <div class="winner-name">${GROOM_SIDE}：${groomWinner.name} さん</div>
+      <div class="winner-name">${BRIDE_SIDE}：${brideWinner.name} さん</div>
+    `;
+    updateDrawButton();
+  }
+
+  function fetchJsonp(url, key) {
+    return new Promise((resolve, reject) => {
+      const callback = `weddingAdminCallback_${Date.now()}_${Math.floor(Math.random() * 1e5)}`;
+      const script = document.createElement("script");
+      let finished = false;
+
+      const cleanup = () => {
+        script.remove();
+        delete window[callback];
+      };
+      const timeout = setTimeout(() => {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        reject(new Error("回答取得がタイムアウトしました。Apps Script URLを確認してください。"));
+      }, 20000);
+
+      window[callback] = (payload) => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout);
+        cleanup();
+        resolve(payload);
+      };
+      script.onerror = () => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout);
+        cleanup();
+        reject(new Error("Apps Scriptへ接続できませんでした。デプロイ設定を確認してください。"));
+      };
+      script.src = `${url}${url.includes("?") ? "&" : "?"}action=responses&key=${encodeURIComponent(key)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function fetchLatest() {
+    const url = String(config.gasWebAppUrl || "");
+    const key = elements.adminKey.value.trim();
+    if (!url || url.startsWith("PASTE_")) {
+      showStatus("config.jsにApps ScriptのWebアプリURLを設定してください。", "error");
+      return;
+    }
+    if (!key) {
+      showStatus("管理者パスコードを入力してください。", "error");
+      return;
+    }
+
+    elements.fetchButton.disabled = true;
+    elements.fetchButton.textContent = "取得中…";
+    showStatus("Googleフォームの最新回答を取得しています。");
+    try {
+      const payload = await fetchJsonp(url, key);
+      applyPayload(payload, "最新データ");
+    } catch (error) {
+      showStatus(error.message || "回答取得に失敗しました。", "error");
+    } finally {
+      elements.fetchButton.disabled = false;
+      elements.fetchButton.textContent = "最新回答を取得";
+    }
+  }
+
+  elements.fetchButton.onclick = fetchLatest;
+  elements.adminKey.onkeydown = (event) => {
+    if (event.key === "Enter") fetchLatest();
+  };
+  elements.drawButton.onclick = draw;
+
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      applyPayload(JSON.parse(cached), "端末保存", false);
+      showStatus("前回取得したデータを端末から読み込みました。", "success");
+    }
+  } catch {
+    localStorage.removeItem(CACHE_KEY);
+  }
+})();
