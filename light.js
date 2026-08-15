@@ -5,9 +5,11 @@
   const menu = document.getElementById("lightMenu");
   const screen = document.getElementById("colorScreen");
   const lastButton = document.getElementById("lastColorButton");
+  const myAnswerToggle = document.getElementById("myAnswerToggle");
+  const myAnswer = document.getElementById("myAnswerContent");
   const sideSelect = document.getElementById("sideSelect");
   const nameSelect = document.getElementById("nameSelect");
-  const refreshAnswersButton = document.getElementById("refreshAnswersButton");
+  const refreshAnswersButton = document.getElementById("refreshAnswersButtonSecondary");
   const answerStatus = document.getElementById("answerStatus");
   const myAnswerResult = document.getElementById("myAnswerResult");
   const ANSWER_SELECTION_KEY = "weddingAnswerSelection";
@@ -232,5 +234,10 @@
     showMyAnswer();
   });
   refreshAnswersButton.addEventListener("click", fetchAnswers);
+  myAnswerToggle.addEventListener("click", () => {
+    const willOpen = myAnswer.hidden;
+    myAnswer.hidden = !willOpen;
+    myAnswerToggle.setAttribute("aria-expanded", String(willOpen));
+  });
   fetchAnswers();
 })();

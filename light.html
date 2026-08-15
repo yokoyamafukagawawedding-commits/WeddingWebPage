@@ -18,16 +18,17 @@
       <div class="color-grid" id="colorGrid"></div>
 
       <button class="button outline full" id="lastColorButton" hidden>前回の色を表示</button>
-      <p class="light-note">色の画面をタップすると、この選択画面に戻ります。</p>
+      <!-- <p class="light-note">色の画面をタップすると、この選択画面に戻ります。</p> -->
 
-      <section class="my-answer" aria-labelledby="myAnswerTitle">
-        <div class="my-answer__heading">
-          <div>
-            <h2 id="myAnswerTitle">自分の回答を確認</h2>
-            <p>招待者と名前を選ぶと、投票した色を確認できます。</p>
-          </div>
-          <button class="button outline update-button" id="refreshAnswersButton" type="button">更新</button>
-        </div>
+      <section class="my-answer" id="myAnswer" aria-labelledby="myAnswerTitle">
+        <button class="my-answer__heading" id="myAnswerToggle" type="button" aria-expanded="false" aria-controls="myAnswerContent">
+          <span class="my-answer__heading-copy">
+            <span class="my-answer__title" id="myAnswerTitle">回答を確認</span>
+            <span class="my-answer__description">投票した色を確認できます。</span>
+          </span>
+          <span class="my-answer-toggle" aria-hidden="true">▼</span>
+        </button>
+        <div class="my-answer__content" id="myAnswerContent" hidden>
         <div class="my-answer__fields">
           <label>招待者
             <select id="sideSelect" disabled>
@@ -44,6 +45,8 @@
         </div>
         <p id="answerStatus" class="answer-status" aria-live="polite">回答データを取得しています。</p>
         <div id="myAnswerResult" class="my-answer__result" hidden></div>
+        <button class="button outline update-button" id="refreshAnswersButtonSecondary" type="button">更新</button>
+        </div>
       </section>
     </div>
   </main>
