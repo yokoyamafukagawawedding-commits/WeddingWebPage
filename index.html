@@ -43,7 +43,7 @@
 
         <a class="menu-card" href="#wedding-photo">
           <span class="menu-icon"><img src="assets/icon-photo.png" alt=""></span>
-          <span><strong>写真を見る・共有する</strong><small>Google Driveを開く</small></span>
+          <span><strong>写真を見る・共有する</strong><small>Googleフォトを開く</small></span>
         </a>
 
         <a class="menu-card" href="#wedding-movie">
@@ -67,7 +67,7 @@
       </div>
 
       <div class="center">
-        <a class="button" data-config-link="driveUrl" href="#" target="_blank" rel="noopener">すべての写真を見る・共有する</a>
+        <a class="button" data-config-link="photosUrl" href="#" target="_blank" rel="noopener">すべての写真を見る・共有する</a>
       </div>
     </section>
 
@@ -77,16 +77,18 @@
         <h2>Wedding Movie</h2>
       </div>
 
-      <!-- <div class="video-wrap">
+      <div class="video-wrap" id="youtubeVideoWrap" hidden>
         <iframe id="youtubeFrame" title="Wedding Movie" loading="lazy"
-          src="https://www.youtube.com/embed/dQw4w9WgXcQ"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen></iframe>
-      </div> -->
-      <div class="tmp-coming-soon">
-        <h2>Comming Soon...</h2>
       </div>
-      <p class="note">※ 動画は結婚式後に公開予定です。</p>
+      <div class="tmp-coming-soon" id="youtubeComingSoon">
+        <h2>Coming Soon...</h2>
+      </div>
+      <div class="center" id="youtubeLinkWrap" hidden>
+        <a class="button" id="youtubeLink" href="#" target="_blank" rel="noopener">YouTubeで見る</a>
+      </div>
+      <p class="note" id="youtubeNote">※ 動画は結婚式後に公開予定です。</p>
     </section>
 
     <section class="section soft">

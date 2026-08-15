@@ -13,6 +13,7 @@
   const answerStatus = document.getElementById("answerStatus");
   const myAnswerResult = document.getElementById("myAnswerResult");
   const ANSWER_SELECTION_KEY = "weddingAnswerSelection";
+  const ANSWERS_CACHE_KEY = "weddingGuestResponsesV1";
 
   let activeColor = null;
   let responses = [];
@@ -36,6 +37,23 @@
     }));
   };
 
+  const loadAnswersCache = () => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(ANSWERS_CACHE_KEY));
+      return cached && Array.isArray(cached.responses) ? cached : null;
+    } catch (_) {
+      localStorage.removeItem(ANSWERS_CACHE_KEY);
+      return null;
+    }
+  };
+
+  const saveAnswersCache = (items) => {
+    localStorage.setItem(ANSWERS_CACHE_KEY, JSON.stringify({
+      responses: items,
+      savedAt: new Date().toISOString(),
+    }));
+  };
+
   const requestFullscreen = async () => {
     try {
       if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
@@ -48,7 +66,6 @@
     activeColor = color;
     localStorage.setItem("weddingSelectedColor", JSON.stringify(color));
     screen.style.background = color.value;
-    screen.querySelector(".color-screen__hint").style.color = color.text || "#fff";
     menu.hidden = true;
     screen.hidden = false;
     document.querySelector('meta[name="theme-color"]').setAttribute("content", color.value);
@@ -118,6 +135,39 @@
     myAnswerResult.hidden = false;
   };
 
+  const showFailedResult = () => {
+    resetResult();
+    const value = document.createElement("strong");
+    value.className = "my-answer__loading";
+    value.textContent = "取得失敗";
+    myAnswerResult.appendChild(value);
+    myAnswerResult.hidden = false;
+  };
+
+  const normalizeResponses = (items) => items.map((response) => ({
+    side: String(response?.side || "").trim(),
+    name: String(response?.name || "").trim(),
+    answer: String(response?.answer || "").trim(),
+  })).filter((response) => response.side && response.name && response.answer);
+
+  const applyAnswers = (items, selection, fromCache = false) => {
+    responses = normalizeResponses(items);
+    sideSelect.value = selection.side;
+    populateSides();
+    populateNames(selection.name);
+    if (sideSelect.value && nameSelect.value) {
+      saveAnswerSelection();
+      showMyAnswer();
+      showAnswerStatus(fromCache
+        ? "保存済みの回答を表示しています。最新情報は更新ボタンで取得できます。"
+        : "回答を表示しています。", "success");
+    } else {
+      showAnswerStatus(fromCache
+        ? "保存済みデータを読み込みました。招待者と名前を選んでください。"
+        : "招待者と名前を選んでください。", "success");
+    }
+  };
+
   const populateSides = () => {
     sideSelect.disabled = false;
   };
@@ -166,6 +216,7 @@
     };
     if (!url || url.startsWith("PASTE_")) {
       showAnswerStatus("回答データの接続先が設定されていません。", "error");
+      showFailedResult();
       return;
     }
     refreshAnswersButton.disabled = true;
@@ -176,23 +227,12 @@
       if (!payload?.success || !Array.isArray(payload.responses)) {
         throw new Error(payload?.error || "回答データの形式が正しくありません。");
       }
-      responses = payload.responses.map((response) => ({
-        side: String(response.side || "").trim(),
-        name: String(response.name || "").trim(),
-        answer: String(response.answer || "").trim(),
-      })).filter((response) => response.side && response.name && response.answer);
-      sideSelect.value = selection.side;
-      populateSides();
-      populateNames(selection.name);
-      if (sideSelect.value && nameSelect.value) {
-        saveAnswerSelection();
-        showMyAnswer();
-        showAnswerStatus("回答を表示しています。", "success");
-      } else {
-        showAnswerStatus("招待者と名前を選んでください。", "success");
-      }
+      const normalized = normalizeResponses(payload.responses);
+      saveAnswersCache(normalized);
+      applyAnswers(normalized, selection);
     } catch (error) {
       showAnswerStatus(error.message || "回答データを取得できませんでした。", "error");
+      showFailedResult();
     } finally {
       refreshAnswersButton.disabled = false;
     }
@@ -239,5 +279,10 @@
     myAnswer.hidden = !willOpen;
     myAnswerToggle.setAttribute("aria-expanded", String(willOpen));
   });
-  fetchAnswers();
+  const cachedAnswers = loadAnswersCache();
+  if (cachedAnswers) {
+    applyAnswers(cachedAnswers.responses, savedAnswerSelection, true);
+  } else {
+    fetchAnswers();
+  }
 })();

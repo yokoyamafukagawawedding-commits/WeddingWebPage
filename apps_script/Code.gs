@@ -9,8 +9,8 @@ const SETUP = Object.freeze({
   formId: '1CkbYEu-XtA0dNj-vdM-6Xe-N70hL7iFuZxAnPXWce4Y',
 
   sideQuestionTitle: 'どちらの招待客ですか？',
-  groomSideLabel: '新郎側',
-  brideSideLabel: '新婦側',
+  groomSideLabel: '新郎',
+  brideSideLabel: '新婦',
   groomNameQuestionTitle: 'あなたの名前を選んでください。',
   brideNameQuestionTitle: 'あなたの名前を選んでください。',
   colorQuestionTitle: 'カラードレスの色を予想してください。',
@@ -40,31 +40,36 @@ function getLatestResponses_() {
   const validRows = [];
 
   formResponses.forEach(function(formResponse) {
-    const answers = {};
-    formResponse.getItemResponses().forEach(function(itemResponse) {
-      const title = normalizeText_(itemResponse.getItem().getTitle());
-      const response = itemResponse.getResponse();
-      answers[title] = Array.isArray(response) ? response.map(normalizeText_).join(', ') : normalizeText_(response);
-    });
+    try {
+      const answers = Object.create(null);
+      formResponse.getItemResponses().forEach(function(itemResponse) {
+        const title = normalizeText_(itemResponse.getItem().getTitle());
+        const response = itemResponse.getResponse();
+        answers[title] = Array.isArray(response) ? response.map(normalizeText_).join(', ') : normalizeText_(response);
+      });
 
-    const side = answers[normalizeText_(SETUP.sideQuestionTitle)] || '';
-    let name = '';
-    if (side === SETUP.groomSideLabel) name = answers[normalizeText_(SETUP.groomNameQuestionTitle)] || '';
-    else if (side === SETUP.brideSideLabel) name = answers[normalizeText_(SETUP.brideNameQuestionTitle)] || '';
-    else name = answers[normalizeText_(SETUP.groomNameQuestionTitle)] || answers[normalizeText_(SETUP.brideNameQuestionTitle)] || '';
+      const side = answers[normalizeText_(SETUP.sideQuestionTitle)] || '';
+      let name = '';
+      if (side === SETUP.groomSideLabel) name = answers[normalizeText_(SETUP.groomNameQuestionTitle)] || '';
+      else if (side === SETUP.brideSideLabel) name = answers[normalizeText_(SETUP.brideNameQuestionTitle)] || '';
+      else name = answers[normalizeText_(SETUP.groomNameQuestionTitle)] || answers[normalizeText_(SETUP.brideNameQuestionTitle)] || '';
 
-    const answer = answers[normalizeText_(SETUP.colorQuestionTitle)] || '';
-    if (!side || !name || !answer) return;
+      const answer = answers[normalizeText_(SETUP.colorQuestionTitle)] || '';
+      if (!side || !name || !answer) return;
 
-    const timestamp = formResponse.getTimestamp();
-    validRows.push({
-      side: side,
-      name: name,
-      answer: answer,
-      timestamp: timestamp.toISOString(),
-      timestampMs: timestamp.getTime(),
-      responseId: formResponse.getId() || ''
-    });
+      const timestamp = formResponse.getTimestamp();
+      if (!(timestamp instanceof Date) || isNaN(timestamp.getTime())) return;
+      validRows.push({
+        side: side,
+        name: name,
+        answer: answer,
+        timestamp: timestamp.toISOString(),
+        timestampMs: timestamp.getTime(),
+        responseId: formResponse.getId() || ''
+      });
+    } catch (error) {
+      console.warn('回答1件を読み飛ばしました。', error);
+    }
   });
 
   validRows.sort(function(a, b) { return a.timestampMs - b.timestampMs; });
