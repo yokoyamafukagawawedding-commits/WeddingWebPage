@@ -209,7 +209,7 @@ footer .small { opacity: .7; font-size: .86rem; margin-top: 6px; }
   min-height: 100svh;
   display: grid;
   place-items: center;
-  padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  padding: max(50px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
   background:
     radial-gradient(circle at top, #f0ded6 0, transparent 45%),
     var(--bg);
@@ -247,6 +247,22 @@ footer .small { opacity: .7; font-size: .86rem; margin-top: 6px; }
   cursor: pointer;
 }
 .light-note { font-size: .86rem; margin-bottom: 0; }
+.my-answer { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); text-align: left; }
+.my-answer__heading { display: flex; justify-content: space-between; align-items: start; gap: 14px; }
+.my-answer h2 { margin: 0; font-family: "Noto Serif JP", serif; font-size: 1.2rem; }
+.my-answer__heading p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; line-height: 1.6; }
+.update-button { min-height: 38px; padding: 0 16px; flex: 0 0 auto; }
+.my-answer__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.my-answer label { display: grid; gap: 5px; font-size: .85rem; font-weight: 700; }
+.my-answer select { width: 100%; min-height: 46px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: #fff; font: inherit; }
+.my-answer select:disabled, .update-button:disabled { opacity: .55; }
+.answer-status { min-height: 1.75em; margin: 14px 0 0; color: var(--muted); font-size: .85rem; }
+.answer-status.success { color: #216442; }
+.answer-status.error { color: #a22424; }
+.my-answer__result { margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--soft); text-align: center; }
+.my-answer__result p { margin: 0 0 8px; color: var(--muted); font-size: .82rem; }
+.my-answer__result strong { display: inline-block; min-width: 130px; padding: 7px 16px; border-radius: 999px; font-size: 1.15rem; }
+.my-answer__result .my-answer__loading { color: var(--muted); background: #fff; }
 
 .color-screen {
   position: fixed;
@@ -284,4 +300,5 @@ footer .small { opacity: .7; font-size: .86rem; margin-top: 6px; }
   .menu-card::after { width: 10px; height: 10px; }
   .section { padding: 62px 16px; }
   .map-wrap { height: 360px; }
+  .my-answer__fields { grid-template-columns: 1fr; }
 }

@@ -12,13 +12,39 @@
     <a class="back-link" href="index.html">← トップへ戻る</a>
     <div class="light-card">
       <p class="eyebrow">DRESS COLOR QUIZ</p>
-      <h1>選んだ色を表示</h1>
+      <h1>サイリウム</h1>
       <p>お色直し入場の際に、投票した色をタップしてください。画面の明るさを最大にすると、よりきれいに見えます。</p>
 
       <div class="color-grid" id="colorGrid"></div>
 
       <button class="button outline full" id="lastColorButton" hidden>前回の色を表示</button>
       <p class="light-note">色の画面をタップすると、この選択画面に戻ります。</p>
+
+      <section class="my-answer" aria-labelledby="myAnswerTitle">
+        <div class="my-answer__heading">
+          <div>
+            <h2 id="myAnswerTitle">自分の回答を確認</h2>
+            <p>招待者と名前を選ぶと、投票した色を確認できます。</p>
+          </div>
+          <button class="button outline update-button" id="refreshAnswersButton" type="button">更新</button>
+        </div>
+        <div class="my-answer__fields">
+          <label>招待者
+            <select id="sideSelect" disabled>
+              <option value="">選択してください</option>
+              <option value="新郎">新郎</option>
+              <option value="新婦">新婦</option>
+            </select>
+          </label>
+          <label>名前
+            <select id="nameSelect" disabled>
+              <option value="">先に招待者を選択してください</option>
+            </select>
+          </label>
+        </div>
+        <p id="answerStatus" class="answer-status" aria-live="polite">回答データを取得しています。</p>
+        <div id="myAnswerResult" class="my-answer__result" hidden></div>
+      </section>
     </div>
   </main>
 

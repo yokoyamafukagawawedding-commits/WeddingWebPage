@@ -13,7 +13,6 @@
   };
 
   const elements = {
-    adminKey: document.getElementById("adminKey"),
     fetchButton: document.getElementById("fetchButton"),
     statusMessage: document.getElementById("statusMessage"),
     dataBadge: document.getElementById("dataBadge"),
@@ -251,7 +250,7 @@
     updateDrawButton();
   }
 
-  function fetchJsonp(url, key) {
+  function fetchJsonp(url) {
     return new Promise((resolve, reject) => {
       const callback = `weddingAdminCallback_${Date.now()}_${Math.floor(Math.random() * 1e5)}`;
       const script = document.createElement("script");
@@ -282,28 +281,22 @@
         cleanup();
         reject(new Error("Apps Scriptへ接続できませんでした。デプロイ設定を確認してください。"));
       };
-      script.src = `${url}${url.includes("?") ? "&" : "?"}action=responses&key=${encodeURIComponent(key)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;
+      script.src = `${url}${url.includes("?") ? "&" : "?"}action=responses&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;
       document.head.appendChild(script);
     });
   }
 
   async function fetchLatest() {
     const url = String(config.gasWebAppUrl || "");
-    const key = elements.adminKey.value.trim();
     if (!url || url.startsWith("PASTE_")) {
       showStatus("config.jsにApps ScriptのWebアプリURLを設定してください。", "error");
       return;
     }
-    if (!key) {
-      showStatus("管理者パスコードを入力してください。", "error");
-      return;
-    }
-
     elements.fetchButton.disabled = true;
     elements.fetchButton.textContent = "取得中…";
     showStatus("Googleフォームの最新回答を取得しています。");
     try {
-      const payload = await fetchJsonp(url, key);
+      const payload = await fetchJsonp(url);
       console.log("Apps Scriptから受信した回答データ:", payload);
       applyPayload(payload, "最新データ");
     } catch (error) {
@@ -315,9 +308,6 @@
   }
 
   elements.fetchButton.onclick = fetchLatest;
-  elements.adminKey.onkeydown = (event) => {
-    if (event.key === "Enter") fetchLatest();
-  };
   elements.drawGroomButton.onclick = () => draw(GROOM_SIDE);
   elements.drawBrideButton.onclick = () => draw(BRIDE_SIDE);
 

@@ -13,21 +13,16 @@ const SETUP = Object.freeze({
   brideSideLabel: '新婦側',
   groomNameQuestionTitle: 'あなたの名前を選んでください。',
   brideNameQuestionTitle: 'あなたの名前を選んでください。',
-  colorQuestionTitle: 'カラードレスの色を予想してください',
+  colorQuestionTitle: 'カラードレスの色を予想してください。',
 
   // フォームの色の選択肢と同じ表記にしてください。
-  colors: ['ピンク', 'ブラウン', 'イエロー', '黄緑'],
-
-  // 12文字以上の推測されにくい文字列に変更してください。
-  adminKey: 'CHANGE_THIS_TO_A_LONG_RANDOM_KEY'
+  colors: ['ピンク', 'ブラウン', 'イエロー', '黄緑']
 });
 
 /** admin.html から呼ばれるWebアプリAPI。 */
 function doGet(e) {
   const callback = e && e.parameter ? String(e.parameter.callback || '') : '';
   try {
-    const key = e && e.parameter ? String(e.parameter.key || '') : '';
-    authorize_(key);
     const action = e && e.parameter ? String(e.parameter.action || 'responses') : 'responses';
     if (action !== 'responses') throw new Error('未対応の操作です。');
     return createOutput_(getLatestResponses_(), callback);
@@ -99,13 +94,6 @@ function getLatestResponses_() {
   };
 }
 
-function authorize_(providedKey) {
-  validateSetup_();
-  if (!providedKey || providedKey !== SETUP.adminKey) {
-    throw new Error('管理者パスコードが正しくありません。');
-  }
-}
-
 /** JSONPまたは通常JSONとして返す。 */
 function createOutput_(payload, callback) {
   const json = JSON.stringify(payload);
@@ -135,8 +123,5 @@ function validateSetup_() {
   if (!Array.isArray(SETUP.colors) || SETUP.colors.length < 2 ||
       SETUP.colors.some(function(color) { return !normalizeText_(color); })) {
     throw new Error('色の選択肢を2つ以上設定してください。');
-  }
-  if (!SETUP.adminKey || SETUP.adminKey === 'CHANGE_THIS_TO_A_LONG_RANDOM_KEY' || SETUP.adminKey.length < 12) {
-    throw new Error('adminKeyを12文字以上の推測されにくい文字列に変更してください。');
   }
 }
