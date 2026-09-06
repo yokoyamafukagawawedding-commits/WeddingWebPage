@@ -34,7 +34,7 @@ img { display: block; width: 100%; }
     radial-gradient(circle at 20% 20%, #e9d5cc 0, transparent 36%),
     radial-gradient(circle at 80% 70%, #d8e0dc 0, transparent 38%);
 
-  /* background: url("assets/background.jpg") center/cover no-repeat; */
+  background: url("assets/background.jpg") center/cover no-repeat;
 }
 .hero__inner { max-width: 720px; }
 .hero h1, .section h2, .light-card h1 {
