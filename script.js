@@ -1,6 +1,21 @@
 (() => {
   const config = window.WEDDING_CONFIG || {};
 
+  // 内容は常に表示し、対応環境で画面に入った要素だけを一度演出します。
+  if (document.body.classList.contains("home-page") &&
+      "IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("reveal-visible");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll(".section-heading, .menu-card, .gallery, .tmp-coming-soon, .map-wrap")
+      .forEach((element) => observer.observe(element));
+  }
+
   document.querySelectorAll("[data-config-link]").forEach((element) => {
     const key = element.dataset.configLink;
     const value = config[key];
