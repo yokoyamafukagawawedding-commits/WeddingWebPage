@@ -83,6 +83,20 @@
 .home-page .button.outline:hover { background: #e8ddd7; }
 .home-page a:focus-visible { outline: 3px solid var(--home-gold); outline-offset: 6px; }
 .home-page .video-wrap, .home-page .map-wrap { border-radius: 3px; box-shadow: none; border: 1px solid var(--line); }
+.home-page .movie-list { display: grid; max-width: 920px; margin: 0 auto; gap: 48px; }
+.home-page .movie-list[hidden] { display: none; }
+.home-page .movie-card { min-width: 0; }
+.home-page .movie-card h3 {
+  margin: 0 0 18px;
+  font-family: "Noto Serif JP", serif;
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  font-weight: 400;
+  line-height: 1.7;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.home-page .movie-card .video-wrap { width: 100%; min-height: 200px; }
+.home-page .movie-link-wrap { margin-top: 22px; }
 .home-page .tmp-coming-soon { max-width: 920px; margin: auto; padding: 65px 24px; border: 1px solid var(--line); background: linear-gradient(135deg, #f4ece7, #fbf8f5); }
 .home-page .tmp-coming-soon h2 { font-size: clamp(1.5rem, 5vw, 2.3rem); font-weight: 400; letter-spacing: .06em; }
 .home-page footer { padding: 64px 24px; background: #302c29; }

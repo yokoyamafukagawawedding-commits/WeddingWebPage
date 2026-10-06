@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f2ee">
   <title>Wedding Day</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,16 +79,9 @@
         <h2>Wedding Movie</h2>
       </div>
 
-      <div class="video-wrap" id="youtubeVideoWrap" hidden>
-        <iframe id="youtubeFrame" title="Wedding Movie" loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen></iframe>
-      </div>
+      <div class="movie-list" id="youtubeMovies" hidden></div>
       <div class="tmp-coming-soon" id="youtubeComingSoon">
         <h2>Coming Soon...</h2>
-      </div>
-      <div class="center" id="youtubeLinkWrap" hidden>
-        <a class="button" id="youtubeLink" href="#" target="_blank" rel="noopener">YouTubeで見る</a>
       </div>
       <p class="note" id="youtubeNote">※ 動画は結婚式後に公開予定です。</p>
     </section>
